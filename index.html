@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Raju AI Smart Tools</title>
+<meta name="theme-color" content="#2B3FD6">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{--bg:#F2F5FB;--sf:#fff;--ink:#16224A;--mu:#5B6585;--ln:#D9DFEE;--br:#2B3FD6;--bi:#fff;--sun:#FFC83D}
+@media(prefers-color-scheme:dark){:root{--bg:#10152B;--sf:#1A2140;--ink:#EEF1FF;--mu:#9AA5CC;--ln:#2B3560;--br:#8E9BFF;--bi:#10152B}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans Bengali","Hind Siliguri","Kalpurush",system-ui,sans-serif;line-height:1.65;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+.w{max-width:960px;margin:0 auto;padding:0 18px}
+header{display:flex;justify-content:space-between;align-items:center;padding:16px 0}
+.logo{font-weight:700;font-size:19px;display:flex;gap:8px;align-items:center;cursor:pointer}
+.logo i{width:28px;height:28px;border-radius:8px;background:var(--br);color:var(--bi);display:grid;place-items:center;font-style:normal;font-size:14px}
+.btn{font:inherit;font-weight:600;border:0;border-radius:10px;padding:10px 18px;cursor:pointer;background:var(--br);color:var(--bi)}
+.btn.g{background:transparent;color:var(--ink);border:1.5px solid var(--ln)}
+.btn:disabled{opacity:.6}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+h1{font-size:clamp(30px,6vw,52px);line-height:1.2;margin:18px 0 10px;max-width:17ch}
+.sub{color:var(--mu);font-size:18px;max-width:46ch;margin:0 0 20px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--sf);border:1.5px solid var(--ln);border-radius:12px;padding:11px 14px;width:100%}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;padding:22px 0 40px}
+.tool{grid-column:span 2;text-align:left;font:inherit;color:var(--ink);background:var(--sf);border:1.5px solid var(--ln);border-radius:18px;padding:18px;cursor:pointer;display:flex;flex-direction:column;gap:4px}
+.tool:hover{border-color:var(--br)}
+.tool.big{grid-column:span 3;background:var(--br);color:var(--bi);border-color:var(--br);min-height:170px}
+.tool.big small{color:inherit;opacity:.85}
+.tool .ic{font-size:28px}.tool b{font-size:18px}.tool small{color:var(--mu);font-size:15px}
+.bar{display:flex;gap:10px;align-items:center;margin:6px 0 14px}
+.bar h2{margin:0;font-size:22px}
+.f{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-bottom:12px}
+.f label{font-size:14px;color:var(--mu);display:block}
+textarea{min-height:120px;resize:vertical}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+#out{background:var(--sf);border:1.5px solid var(--ln);border-radius:14px;padding:6px 16px;min-height:64px;margin-bottom:30px}
+#out h3{margin:14px 0 4px;font-size:18px}#out p{margin:8px 0}#out img{max-width:100%;border-radius:12px;margin:10px 0}
+.u{background:var(--bg);border-radius:10px;padding:2px 12px;margin:10px 0;color:var(--mu)}
+.err{color:#C62828}.load{color:var(--mu)}
+footer{border-top:1px solid var(--ln);padding:18px 0 28px;color:var(--mu);font-size:14px}
+@media(max-width:720px){.tool,.tool.big{grid-column:span 6;min-height:0}}
+@media print{.np{display:none!important}body{background:#fff;color:#000}#out{border:0}}
+</style>
+</head>
+<body>
+<div class="w">
+<header class="np"><div class="logo" onclick="location.hash=''"><i>✦</i> Raju AI Smart Tools</div><button class="btn g" id="inst" hidden>অ্যাপ ইনস্টল</button></header>
+
+<section id="home">
+  <h1 class="np">লিখুন, আঁকুন, অনুবাদ করুন — সব এক জায়গায়</h1>
+  <p class="sub np">ব্লগ, ক্যাপশন, ভিডিও স্ক্রিপ্ট, ছবি, ভয়েস আর CV। বাংলায় লিখুন, কয়েক সেকেন্ডে ফল পান।</p>
+  <input id="q" class="np" type="search" placeholder="টুল খুঁজুন: ক্যাপশন, CV, অনুবাদ..." aria-label="টুল খুঁজুন">
+  <div class="grid" id="grid"></div>
+</section>
+
+<section id="tool" hidden>
+  <div class="bar np"><button class="btn g" onclick="location.hash=''">← ফিরে যান</button><h2 id="tt"></h2></div>
+  <div class="f np" id="fields"></div>
+  <textarea id="inp" class="np" aria-label="আপনার লেখা"></textarea>
+  <div class="row np"><button class="btn" id="run"></button><button class="btn g" id="cp" hidden>কপি</button><button class="btn g" id="stop" hidden>থামান</button><button class="btn g" id="pr" hidden>PDF / প্রিন্ট</button></div>
+  <div id="out"></div>
+</section>
+<footer class="np">© 2026 Raju AI Smart Tools</footer>
+</div>
+<script>
+var T=[
+{id:'chat',n:'AI Chat Assistant',d:'AI-এর সঙ্গে কথা বলুন, প্রশ্নের উত্তর পান',i:'💬',big:1,ph:'যেকোনো প্রশ্ন লিখুন...',btn:'পাঠান',tool:'chat'},
+{id:'writer',n:'AI Content Writer',d:'Blog, Article, Facebook Post ও Caption লিখুন',i:'✍️',big:1,ph:'কী নিয়ে লিখতে চান? যেমন: ঈদের অফারের পোস্ট',btn:'লিখুন',tool:'writer',f:[{k:'type',l:'ধরন',o:['Facebook Post','Caption','Blog','Article']},{k:'tone',l:'টোন',o:['বন্ধুত্বপূর্ণ','পেশাদার','মজার','প্রেরণাদায়ক']}]},
+{id:'image',n:'AI Image Generator',d:'Text Prompt দিয়ে ছবি তৈরি',i:'🎨',ph:'ছবির বর্ণনা দিন, যেমন: নদীর ধারে সূর্যাস্ত',btn:'ছবি বানান',tool:'imageprompt',kind:'image',f:[{k:'style',l:'স্টাইল',o:['realistic photo','cartoon','3D render','watercolor painting','minimal logo']}]},
+{id:'script',n:'AI Video Script',d:'YouTube ও Facebook ভিডিওর স্ক্রিপ্ট',i:'🎬',ph:'ভিডিওর বিষয় লিখুন...',btn:'স্ক্রিপ্ট লিখুন',tool:'script',f:[{k:'platform',l:'প্ল্যাটফর্ম',o:['YouTube','Facebook']},{k:'length',l:'দৈর্ঘ্য',o:['১ মিনিট','৩ মিনিট','৫ মিনিট','১০ মিনিট']}]},
+{id:'seo',n:'YouTube SEO Tools',d:'Title, Description, Tags ও Keywords',i:'📈',ph:'ভিডিওর বিষয় লিখুন...',btn:'SEO তৈরি করুন',tool:'seo'},
+{id:'translate',n:'AI Translator',d:'বাংলা থেকে ইংরেজি ও অন্যান্য ভাষায় অনুবাদ',i:'🌐',ph:'অনুবাদ করার লেখা দিন...',btn:'অনুবাদ করুন',tool:'translate',listen:1,f:[{k:'to',l:'যে ভাষায়',o:['English','Bengali','Hindi','Arabic','Spanish','French','Chinese','Japanese']}]},
+{id:'voice',n:'AI Voice Tools',d:'Text থেকে Voice তৈরি',i:'🎙️',ph:'যে লেখা পড়ে শোনাতে চান...',btn:'▶ শুনুন',kind:'voice',f:[{k:'lang',l:'ভাষা',o:['bn-BD','en-US','hi-IN']},{k:'rate',l:'গতি',o:['0.8','1','1.2']}]},
+{id:'cv',n:'AI CV Maker',d:'Professional CV তৈরি',i:'📄',ph:'নাম, ফোন, ইমেইল, শিক্ষা, অভিজ্ঞতা, স্কিল লিখুন...',btn:'CV বানান',tool:'cv',print:1,f:[{k:'lang',l:'CV-এর ভাষা',o:['English','Bengali']}]}
+];
+var $=function(i){return document.getElementById(i)},cur=null,hist=[],last='';
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function md(s){var h='',l2=0;s.split('\n').forEach(function(l){l=esc(l).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');var m=/^\s*[-*•]\s+(.*)/.exec(l);if(m){if(!l2){h+='<ul>';l2=1}h+='<li>'+m[1]+'</li>'}else{if(l2){h+='</ul>';l2=0}if(/^#{1,4}\s/.test(l))h+='<h3>'+l.replace(/^#+\s*/,'')+'</h3>';else if(l.trim())h+='<p>'+l+'</p>'}});return h+(l2?'</ul>':'')}
+function home(){var t=$('q').value.trim().toLowerCase();$('grid').innerHTML='';T.filter(function(x){return(x.n+x.d).toLowerCase().indexOf(t)>-1}).forEach(function(x){var b=document.createElement('button');b.className='tool'+(x.big?' big':'');b.innerHTML='<span class="ic">'+x.i+'</span><b>'+x.n+'</b><small>'+x.d+'</small>';b.onclick=function(){location.hash=x.id};$('grid').appendChild(b)})}
+function route(){var id=location.hash.slice(1);cur=T.filter(function(x){return x.id===id})[0]||null;$('home').hidden=!!cur;$('tool').hidden=!cur;if(!cur){speechSynthesis&&speechSynthesis.cancel();return}
+ hist=[];last='';$('tt').textContent=cur.n;$('inp').placeholder=cur.ph;$('inp').value='';$('run').textContent=cur.btn;$('out').innerHTML='';
+ $('cp').hidden=$('pr').hidden=$('stop').hidden=true;
+ $('fields').innerHTML=(cur.f||[]).map(function(f){return'<div><label>'+f.l+'</label><select data-k="'+f.k+'">'+f.o.map(function(o){return'<option>'+o+'</option>'}).join('')+'</select></div>'}).join('')}
+function opts(){var o={};document.querySelectorAll('#fields select').forEach(function(s){o[s.dataset.k]=s.value});return o}
+async function ai(tool,input,o,h){var r=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tool:tool,input:input,opts:o,history:h})});var j;try{j=await r.json()}catch(e){throw new Error('সার্ভার থেকে সঠিক উত্তর আসেনি। পেজ রিফ্রেশ করে আবার চেষ্টা করুন।')}if(!r.ok)throw new Error(j.error||'ত্রুটি হয়েছে');return j.text}
+function speak(txt,lang,rate){if(!window.speechSynthesis){$('out').innerHTML='<p class="err">এই ব্রাউজারে ভয়েস সাপোর্ট নেই।</p>';return}speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(txt);u.lang=lang;u.rate=parseFloat(rate)||1;var v=speechSynthesis.getVoices().filter(function(x){return x.lang.replace('_','-').indexOf(lang.slice(0,2))===0});if(!v.length)$('out').innerHTML='<p class="err">আপনার ডিভাইসে এই ভাষার ভয়েস নেই। Android সেটিংসে Google Text-to-speech-এ বাংলা ভয়েস ডাউনলোড করুন।</p>';u.onend=function(){$('stop').hidden=true};speechSynthesis.speak(u);$('stop').hidden=false}
+$('run').onclick=async function(){var v=$('inp').value.trim();if(!v){$('out').innerHTML='<p class="err">আগে কিছু লিখুন।</p>';return}var o=opts();
+ if(cur.kind==='voice'){speak(v,o.lang,o.rate);return}
+ $('run').disabled=true;$('out').innerHTML='<p class="load">অপেক্ষা করুন...</p>';
+ try{var t=await ai(cur.tool,v,o,hist);
+  if(cur.kind==='image'){var p=encodeURIComponent(t.trim());$('out').innerHTML='<p>'+esc(t)+'</p><img alt="তৈরি ছবি" src="https://image.pollinations.ai/prompt/'+p+'?width=768&height=768&nologo=true&seed='+Math.floor(Math.random()*1e6)+'"><p><small>ছবি লোড হতে কয়েক সেকেন্ড লাগতে পারে। সেভ করতে ছবিতে চেপে ধরুন।</small></p>';last=t}
+  else if(cur.id==='chat'){hist.push({r:'user',t:v},{r:'ai',t:t});$('out').innerHTML=hist.map(function(m){return m.r==='user'?'<div class="u">'+esc(m.t)+'</div>':md(m.t)}).join('');$('inp').value='';last=t}
+  else{$('out').innerHTML=md(t);last=t}
+  $('cp').hidden=false;$('pr').hidden=!cur.print;if(cur.listen){$('stop').hidden=false}
+ }catch(e){$('out').innerHTML='<p class="err">'+esc(e.message)+'</p>'}
+ $('run').disabled=false};
+$('cp').onclick=function(){navigator.clipboard&&navigator.clipboard.writeText(last).then(function(){$('cp').textContent='কপি হয়েছে';setTimeout(function(){$('cp').textContent='কপি'},1500)})};
+$('stop').onclick=function(){if(cur&&cur.listen&&!speechSynthesis.speaking){var o=opts();speak(last,{English:'en-US',Bengali:'bn-BD',Hindi:'hi-IN',Arabic:'ar-SA',Spanish:'es-ES',French:'fr-FR',Chinese:'zh-CN',Japanese:'ja-JP'}[o.to]||'en-US',1);return}speechSynthesis.cancel();$('stop').hidden=true};
+$('pr').onclick=function(){window.print()};
+$('q').oninput=home;window.onhashchange=route;home();route();
+var dp;window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();dp=e;$('inst').hidden=false});
+$('inst').onclick=function(){dp&&dp.prompt()};
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});
+</script>
+</body>
+</html>
